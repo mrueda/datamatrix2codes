@@ -18,7 +18,7 @@ See more info at:
 
 # The Problem
 
-As odd as it may sound, the 4 codes are embedded within a QR. Whoever encoded them didn't use the appropriate anchor terms, nor did they maintain a specific order. In essence, these four terms can be randomly positioned within a string, distinguished by certain characters:
+As odd as it may sound, the 4 codes are embedded within a barcode and whoever encoded them didn't use the appropriate anchor terms, nor did they maintain a specific order. In essence, these four terms can be randomly positioned within a string, distinguished by certain characters:
 
 * `01` denotes the PC (PC) that comes after.
 * `21` represents the Serial Number that follows.

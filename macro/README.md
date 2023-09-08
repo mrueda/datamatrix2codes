@@ -10,7 +10,7 @@ We use a Select Case statement to return the desired parameter based on the para
 
 You can then use this function in your Excel worksheet like any other function, e.g., =ParseEncodedString(A1, "PC") to get the "PC" value from the string in cell A1.
 
-Save this script in a VBA module, and you should be able to use the ParseEncodedString function as a formula in your worksheet. Adjust the regex patterns as necessary to match your data's structure.
+Save this script in a VBA module, and you should be able to use the ParseEncodedString function as a formula in your worksheet.
 
 ## Notes
 
