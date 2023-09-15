@@ -1,6 +1,6 @@
 # Introduction
 
-In Spain, when it comes to medicinal products and their packaging, especially the data encoded in [Data Matrix](https://en.wikipedia.org/wiki/Data_Matrix) 2D barodes, the following terms are commonly used:
+In Spain, when it comes to medicinal products and their packaging, especially the data encoded in [Data Matrix](https://en.wikipedia.org/wiki/Data_Matrix) 2D barcodes, the following terms are commonly used:
 
 * **PC** (Código Nacional): This is the "National Code" and represents a unique identifier for a specific drug product in Spain. It allows for quick identification and verification of a drug's legitimacy.
 
@@ -68,15 +68,15 @@ Manu
 
 ## Step 2: Download and install from Github
 
-    git clone https://github.com/mrueda/qr2codes.git
-    cd qr2codes
+    git clone https://github.com/mrueda/datamatrix2codes.git
+    cd datamatrix2codes
     cpanm --local-lib=~/perl5 local::lib && eval $(perl -I ~/perl5/lib/perl5/ -Mlocal::lib)
     cpanm --notest --installdeps .
-    ./qr2codes.pl data/codes.csv 
+    ./datamatrix2codes.pl data/codes.csv 
 
 By default, the output will be saved as `output.csv`. You can specify another name for the files as:
 
-    ./qr2codes.pl data/codes.csv other_output.csv
+    ./datamatrix2codes.pl data/codes.csv other_output.csv
 
 ## System requirements
 
