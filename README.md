@@ -1,6 +1,6 @@
 # Introduction
 
-In Spain, when it comes to medicinal products and their packaging, especially the data encoded in [Data Matrix](https://en.wikipedia.org/wiki/Data_Matrix) 2D barcodes, the following terms are commonly used:
+In Spain, when it comes to medicinal products and their packaging, especially the data encoded in [Data Matrix GS1](https://www.gs1es.org/capturar-codigo-de-barras-gs1/gs1-datamatrix/) 2D barcodes, the following terms are commonly used:
 
 * **PC** (Código Nacional): This is the "National Code" and represents a unique identifier for a specific drug product in Spain. It allows for quick identification and verification of a drug's legitimacy.
 
@@ -33,7 +33,9 @@ Included in the script is a folder named `macro`, where, as the name suggests, y
 
 # Notes
 
-The script functions relatively well...It captures (approximate values):
+The script is expecting **raw** barcodes such as those coming from a mobile phone App (i.e., without any post-processing such as parenthesis, etc.).
+
+The performance is relatively good ... it captures (approximate values):
 
 * `PC`   - 90%
 * `SN`   - 90%
