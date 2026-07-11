@@ -1,153 +1,160 @@
+<div align="center">
+  <a href="https://mrueda.github.io/datamatrix2codes/">
+    <img src="docs-site/static/img/logo.png"
+         width="260" alt="datamatrix2codes logo">
+  </a>
+  <p><em>Excel-first GS1 DataMatrix parsing for Spanish pharmacy scanner workflows</em></p>
+</div>
+
 # datamatrix2codes
 
-`datamatrix2codes` extracts pharmacy fields from GS1 DataMatrix scans on medicinal product packages.
+**datamatrix2codes: parser for strings obtained from GS1 DataMatrix 2D barcodes on medicine boxes in Spain.**
 
-This project exists because the hard part is often not the DataMatrix symbol itself. The hard part is what happens after the scanner decodes it and sends a one-line string into Excel.
+[![Build and test](https://github.com/mrueda/datamatrix2codes/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/mrueda/datamatrix2codes/actions/workflows/build-and-test.yml)
+[![Documentation deploy](https://github.com/mrueda/datamatrix2codes/actions/workflows/documentation.yml/badge.svg)](https://github.com/mrueda/datamatrix2codes/actions/workflows/documentation.yml)
+[![Documentation](https://img.shields.io/badge/docs-online-blue)](https://mrueda.github.io/datamatrix2codes/)
+[![Python](https://img.shields.io/badge/python-%3E%3D3.10-blue.svg)](pyproject.toml)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-| Field | Meaning | GS1 AI |
+`datamatrix2codes` turns raw scanner strings from Spanish medicine packages into the fields a pharmacy workflow expects in Excel:
+
+| Field | Common pharmacy meaning | GS1 source |
 | --- | --- | --- |
-| `PC` | Código Nacional / product code, normalized from GTIN | `01` |
-| `SN` | Serial number | `21` |
-| `LOTE` | Batch / lot number | `10` |
-| `CAD` | Expiry date as `YYMM` | `17` |
+| `PC` | Product identifier used in the pharmacy sheet | AI `01` GTIN, normalized by removing a leading zero when present |
+| `SN` | Numero de Serie / serial number | AI `21` |
+| `LOTE` | Numero de Lote / batch or lot number | AI `10` |
+| `CAD` | Fecha de Caducidad / expiry date as `YYMM` | AI `17` |
 
-## Spanish Pharmacy Terms
+The primary user is a pharmacist with a third-party scanner that writes one decoded barcode string directly into Excel. The repository also includes a Python implementation for validation, batch conversion, and regression testing.
 
-In Spain, when it comes to medicinal products and their packaging, especially the data encoded in GS1 DataMatrix 2D barcodes, the following terms are commonly used:
+**Documentation:** <a href="https://mrueda.github.io/datamatrix2codes/" target="_blank">https://mrueda.github.io/datamatrix2codes/</a>
 
-- `PC` (`Código Nacional`): the National Code. It identifies a specific drug product in Spain and helps with quick identification and verification.
-- `CAD` (`Fecha de Caducidad`): the expiry date. It indicates until when the drug can be considered effective and safe to use.
-- `SN` (`Número de Serie`): the serial number. Under the EU falsified medicines framework, medicine packs are serialized to help prevent counterfeit medicines from entering the legitimate supply chain.
-- `LOTE` (`Número de Lote`): the batch or lot number. It identifies a manufacturing batch so products can be traced and recalled if needed.
+**Excel Quick Start:** <a href="https://mrueda.github.io/datamatrix2codes/docs/usage/excel-quickstart" target="_blank">https://mrueda.github.io/datamatrix2codes/docs/usage/excel-quickstart</a>
 
-## The Real Problem
+**macOS Excel Install:** <a href="https://mrueda.github.io/datamatrix2codes/docs/installation/macos" target="_blank">https://mrueda.github.io/datamatrix2codes/docs/installation/macos</a>
 
-Spanish medicinal product boxes usually show the same information twice:
+**Windows Excel Install:** <a href="https://mrueda.github.io/datamatrix2codes/docs/installation/windows" target="_blank">https://mrueda.github.io/datamatrix2codes/docs/installation/windows</a>
 
-- as human-readable text printed beside the code, such as `PC`, `SN`, `Lot`, and `EXP`;
-- as a machine-readable GS1 DataMatrix symbol.
+**Excel macro download:** <a href="https://raw.githubusercontent.com/mrueda/datamatrix2codes/master/macro/ParseEncodedString.bas" target="_blank">ParseEncodedString.bas</a>
 
-The scanner reads the DataMatrix symbol, not the printed text. That symbol encodes a single GS1 payload. The payload can contain hidden control separators, especially the ASCII group separator character 29, used after variable-length fields such as lot number (`10`) and serial number (`21`).
+**GitHub Actions:** <a href="https://github.com/mrueda/datamatrix2codes/actions/workflows/build-and-test.yml" target="_blank">Build and test</a> · <a href="https://github.com/mrueda/datamatrix2codes/actions/workflows/documentation.yml" target="_blank">Documentation deploy</a>
 
-A fully preserved scan may be conceptually like this:
+## Why This Exists
+
+The DataMatrix symbol on a medicine box is not the same thing as the printed `PC`, `SN`, `LOTE`, and `CAD` text beside it. A scanner decodes the symbol into one GS1 payload string. That payload may contain hidden separators, especially ASCII group separator character 29, after variable-length fields.
+
+When the scanner-to-Excel path preserves those separators, parsing is straightforward:
 
 ```text
 010847000700681721PE42EEADPA9HW4<GS>1728033110V06
 ```
 
-where `<GS>` represents one hidden group separator character. It is still one string, not four printed lines.
-
-The scanner used for the original pharmacy workflow produced flattened strings like this, and the bundled fixtures preserve that real output shape:
+Many practical pharmacy setups do not preserve them. They send a flattened string like this instead:
 
 ```text
 010847000700681721PE42EEADPA9HW41728033110V06
 ```
 
-That means the parser must work after the scanner-to-Excel path has already removed or hidden the separators. Now the string is ambiguous. The `17` after `PE42EEADPA9HW4` might be the expiry-date Application Identifier, or it might have been part of the serial number. The same problem can happen with `10`, `21`, or `71` inside real values.
+At that point the problem is no longer simply "read the barcode." The barcode has already been read. The problem is recovering field boundaries from a flattened string where values may themselves contain `17`, `10`, `21`, or `71`.
 
-So this project has two jobs:
+This project handles both cases:
 
-1. recover likely fields from flattened scanner strings like the real fixture data;
-2. parse normal GS1 strings when separators are preserved.
+- strict parsing when GS1 separators are present;
+- recovery parsing when a scanner or Excel workflow has flattened the payload.
 
-Recovery cannot be perfect for every possible scan. When the input is genuinely ambiguous, the parser returns `AMBIGUOUS`, `PARTIAL`, or `UNPARSED` rather than pretending certainty.
+Recovery cannot be perfect for every possible string. When the input is incomplete or genuinely ambiguous, the tool marks the row as `PARTIAL`, `AMBIGUOUS`, or `UNPARSED` instead of inventing certainty.
 
-## Supported Tools
+## Excel Users
 
-The project has two supported surfaces:
+Most Excel users only need one file:
 
-1. An Excel VBA module for pharmacy workflows where the scanner writes directly into a spreadsheet.
-2. A small Python CLI for macOS/Linux/Windows validation, batch conversion, and regression tests.
+1. Download [`ParseEncodedString.bas`](https://raw.githubusercontent.com/mrueda/datamatrix2codes/master/macro/ParseEncodedString.bas).
+2. Open Excel and enable macros for the workbook.
+3. Open the VBA editor.
+4. Import the `.bas` file into the workbook.
+5. Scan raw codes into column `A`.
+6. Run the `DataMatrix2Codes` macro to fill parsed columns and review colors.
 
-The full documentation lives in `docs-site/` and is designed for GitHub Pages.
+The macro is plain VBA. It does not require Perl, Python, ActiveX, `VBScript.RegExp`, or Windows-only references. It is intended to work in Excel for macOS and Excel for Windows.
 
-## Excel Quickstart
+For detailed installation screenshots:
 
-1. Open Excel.
-2. Enable macros for the workbook.
-3. Download only [`ParseEncodedString.bas`](https://raw.githubusercontent.com/mrueda/datamatrix2codes/master/macro/ParseEncodedString.bas).
-4. Import `ParseEncodedString.bas` into the workbook from the VBA editor.
-5. If the raw scanner code is in `A2`, use:
+- [macOS Excel install](docs-site/docs/installation/macos.md)
+- [Windows Excel install](docs-site/docs/installation/windows.md)
+- [Excel quick start](docs-site/docs/usage/excel-quickstart.md)
+- [Review colors](docs-site/docs/usage/review-colors.md)
 
-```excel
-=ParseEncodedString(A2,"PC")
-=ParseEncodedString(A2,"SN")
-=ParseEncodedString(A2,"LOTE")
-=ParseEncodedString(A2,"CAD")
-=ParseEncodedString(A2,"STATUS")
-=ParseEncodedString(A2,"CONFIDENCE")
-=ParseEncodedString(A2,"HAS_GS")
-=ParseEncodedString(A2,"EXPLAIN")
+## Python Users
+
+Install from the repository root:
+
+```bash
+python3 -m pip install -e .
 ```
 
-If Excel rejects the formula, use your local argument separator. Spanish/macOS Excel commonly uses semicolons, for example `=ParseEncodedString(A2;"PC")`.
-
-`STATUS` returns:
-
-| Status | Meaning |
-| --- | --- |
-| `OK` | All four target fields were parsed confidently. |
-| `PARTIAL` | Some fields were missing or could not be recovered. |
-| `AMBIGUOUS` | More than one valid interpretation exists; uncertain fields are blank. |
-| `UNPARSED` | The scan could not be decoded into the supported fields. This does not mean the medicine code itself is invalid. |
-
-The VBA code is pure VBA. It does not use `VBScript.RegExp`, ActiveX, or Windows-only references, so it is intended to work on both Excel for Mac and Excel for Windows.
-
-For a full worksheet, run `DataMatrix2Codes` once before scanning. On an empty sheet it creates the headers and formats columns `A:I` as text. Then scan raw strings from `A2` downward and run `DataMatrix2Codes` again. It creates output columns, parsed values, and review colors.
-
-Format columns `A:I` as text before scanning and conversion. Long scanner strings and parsed product codes must not be converted by Excel into numbers or scientific notation.
-
-If Excel shows "Not trying to type a formula?", the scanner text reached Excel before the input column was prepared as text. Run `DataMatrix2Codes` on an empty sheet first, or configure the scanner to prefix scans with an apostrophe (`'`).
-
-## Scanner Diagnostic
-
-If a problematic scan lands in cell `A1`, check whether Excel received the hidden GS1 group separator:
-
-```excel
-=CODE(MID($A$1,ROW(A1),1))
-```
-
-Fill that formula downward for the length of the scanned string. If any row returns `29`, Excel contains the group separator and parsing should be more reliable.
-
-If no row returns `29`, the scan is in the flattened form this project was built to handle. Recovery mode will be used. If the scanner can be configured differently, options such as GS1 mode, FNC1 transmission, group separator transmission, or replacing the group separator with visible text such as `<GS>` may improve reliability.
-
-## Python Quickstart
-
-Run from the repository root:
+Convert one raw code per row, or a CSV file with a `CODE` column:
 
 ```bash
 python3 -m datamatrix2codes data/codes.csv output.csv
 ```
 
-The input may be either:
-
-- one raw code per row, or
-- a CSV file with a `CODE` column.
-
-The output columns include parsed fields and review metadata:
+The output columns are:
 
 ```text
 CODE,PC,SN,LOTE,CAD,STATUS,CONFIDENCE,HAS_GS,EXPLAIN
 ```
 
-Run the regression tests with:
+Run the test suite:
 
 ```bash
 python3 -m unittest discover -s tests -v
+python3 -m py_compile datamatrix2codes/*.py tests/*.py
 ```
 
-## How Parsing Works
+## Status Values
 
-The parser first tries strict GS1 parsing. Fixed-length fields are consumed according to their official length, and variable-length fields use the ASCII group separator when the scanner provides it.
+| Status | Meaning |
+| --- | --- |
+| `OK` | The target fields were parsed confidently. |
+| `PARTIAL` | Some fields were found, but the row is incomplete. |
+| `AMBIGUOUS` | More than one plausible interpretation exists; disputed fields are left blank for review. |
+| `UNPARSED` | The string could not be decoded into the supported fields. This does not prove the medicine code itself is invalid. |
 
-When separators are missing, the parser tries candidate boundaries for variable-length fields and scores the candidates. It prefers complete parses, valid GTIN check digits, valid expiry dates, no leftover text, and recognized healthcare/NHRN-style `71` segments. If equally good candidates disagree, disputed fields are returned blank and `STATUS` is `AMBIGUOUS`.
+Excel uses the same statuses to color rows for review.
 
-See:
+## Documentation Site
 
-- `docs-site/docs/installation/macos.md`
-- `docs-site/docs/installation/windows.md`
-- `docs-site/docs/usage/excel-feedback.md`
-- `docs-site/docs/technical-details/parser.md`
+The Docusaurus site in `docs-site/` is the main user documentation. It includes:
+
+- an overview for pharmacists;
+- Excel installation guides for macOS and Windows;
+- conversion workflow screenshots;
+- example scanner strings and parsed results;
+- parser notes and scanner diagnostics.
+
+Build the docs locally with:
+
+```bash
+cd docs-site
+npm install
+npm run typecheck
+npm run build
+```
+
+## Project Layout
+
+| Path | Purpose |
+| --- | --- |
+| `macro/ParseEncodedString.bas` | Excel VBA module for pharmacists. |
+| `datamatrix2codes/` | Python parser and CLI. |
+| `tests/` | Regression tests, including flattened scanner strings. |
+| `data/` | Fixture input and expected parsed output. |
+| `docs-site/` | Docusaurus documentation site. |
+| `.github/workflows/` | Python and documentation CI. |
+
+## Origin
+
+I originally wrote this to help my sister, who is a pharmacist. The goal is practical: make scanner-to-Excel workflows less fragile and make uncertain rows obvious enough that a pharmacist can review them.
 
 ## License
 

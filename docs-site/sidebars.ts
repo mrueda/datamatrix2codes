@@ -21,7 +21,7 @@ const sidebars: SidebarsConfig = {
       items: [
         {type: 'doc', id: 'usage/excel-quickstart', label: 'Excel Quick Start'},
         {type: 'doc', id: 'usage/example-codes', label: 'Example Codes'},
-        {type: 'doc', id: 'usage/excel-feedback', label: 'Excel Feedback'},
+        {type: 'doc', id: 'usage/review-colors', label: 'Review Colors'},
         {type: 'doc', id: 'usage/python-cli', label: 'Python CLI'},
         {type: 'doc', id: 'usage/troubleshooting', label: 'Troubleshooting'},
       ],

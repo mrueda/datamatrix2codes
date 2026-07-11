@@ -15,11 +15,11 @@ Excel users only need the single [`ParseEncodedString.bas`](https://raw.githubus
 
 `DataMatrix2Codes` formats columns `A:I` as text before scanning and conversion. This matters because Excel treats some scanner input as formulas and converts long numeric-looking values such as `PC` to scientific notation unless the cells are already text.
 
-See [Example Codes](./example-codes.md) for complete raw strings and their parsed `PC`, `SN`, `LOTE`, `CAD`, and feedback columns.
+See [Example Codes](./example-codes.md) for complete raw strings and their parsed `PC`, `SN`, `LOTE`, `CAD`, and review columns.
 
 <figure>
   <img src={conversionWorkflow} alt="Synthetic Excel workbook showing scanner strings converted into PC, SN, LOTE, CAD, STATUS, CONFIDENCE, and EXPLAIN columns" />
-  <figcaption>Synthetic conversion workflow. The scanner writes raw strings in `CODE`; the macro fills parsed columns and review feedback.</figcaption>
+  <figcaption>Synthetic conversion workflow. The scanner writes raw strings in `CODE`; the macro fills parsed columns and review messages.</figcaption>
 </figure>
 
 The macro creates this worksheet shape:

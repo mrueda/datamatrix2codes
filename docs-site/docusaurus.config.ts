@@ -47,12 +47,16 @@ const config: Config = {
     ],
   ],
   themeConfig: {
-    image: 'img/excel-status-feedback.png',
+    image: 'img/review-colors.png',
     colorMode: {
       respectPrefersColorScheme: true,
     },
     navbar: {
       title: 'datamatrix2codes',
+      logo: {
+        alt: 'datamatrix2codes logo',
+        src: 'img/logo.png',
+      },
       items: [
         {
           type: 'docSidebar',
@@ -99,7 +103,7 @@ const config: Config = {
           title: 'Project',
           items: [
             {label: 'Repository', href: 'https://github.com/mrueda/datamatrix2codes'},
-            {label: 'License', href: 'https://github.com/mrueda/datamatrix2codes/blob/main/LICENSE'},
+            {label: 'License', href: 'https://github.com/mrueda/datamatrix2codes/blob/master/LICENSE'},
           ],
         },
       ],

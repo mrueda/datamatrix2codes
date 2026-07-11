@@ -1,14 +1,10 @@
 .page {
   min-height: calc(100vh - var(--ifm-navbar-height));
-  background:
-    linear-gradient(90deg, rgba(14, 116, 144, 0.08) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(14, 116, 144, 0.08) 1px, transparent 1px),
-    linear-gradient(135deg, #f8fafc 0%, #ecfeff 46%, #f7fee7 100%);
-  background-size: 34px 34px, 34px 34px, auto;
+  background: #f8fafc;
 }
 
 .hero {
-  padding: 5rem 1.5rem 3.5rem;
+  padding: 4rem 1.5rem 3rem;
 }
 
 .heroInner,
@@ -27,8 +23,8 @@
 .copy h1 {
   margin: 0;
   color: #111827;
-  font-size: 3.35rem;
-  line-height: 1.05;
+  font-size: 2.75rem;
+  line-height: 1.12;
   letter-spacing: 0;
 }
 
@@ -113,10 +109,9 @@
   gap: 0.4rem;
   min-height: 172px;
   padding: 1.15rem;
-  border: 1px solid rgba(15, 118, 110, 0.16);
+  border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: 8px;
-  background: linear-gradient(180deg, #ffffff, rgba(236, 254, 255, 0.72));
-  box-shadow: 0 16px 38px rgba(17, 24, 39, 0.08);
+  background: #ffffff;
   color: #111827;
   text-decoration: none;
 }

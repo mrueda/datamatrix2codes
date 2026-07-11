@@ -2,13 +2,23 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 # Overview
 
-`datamatrix2codes` extracts pharmacy fields from GS1 DataMatrix scanner strings used on medicinal product packages in Spain.
+`datamatrix2codes` is an Excel helper for pharmacy scanner workflows.
 
-The main workflow is Excel: a scanner types one raw string into a worksheet, then the macro extracts `PC`, `SN`, `LOTE`, and `CAD` and marks rows that need review.
+Pharmacy staff scan Spanish medicine boxes into Excel. The macro turns the raw scanner string into the fields pharmacists expect to see: `PC`, `CAD`, `SN`, and `LOTE`. It also colors each row so it is clear whether the scan is ready or needs checking.
 
 :::note Why this project exists
 I originally built this to help my sister, who is a pharmacist, work with scanner output in Excel. The goal is practical: make DataMatrix scans easier to review without asking pharmacy staff to use developer tools.
 :::
+
+## What It Does
+
+1. Download the single Excel module file: [`ParseEncodedString.bas`](https://raw.githubusercontent.com/mrueda/datamatrix2codes/master/macro/ParseEncodedString.bas).
+2. Import it into an Excel macro-enabled workbook.
+3. Scan medicine boxes into column `A`.
+4. Run `DataMatrix2Codes`.
+5. Review the generated `PC`, `CAD`, `SN`, `LOTE`, `STATUS`, and `EXPLAIN` columns.
+
+The normal user does not need Python, the command line, or the full repository.
 
 ## Spanish Pharmacy Terms
 
@@ -79,7 +89,7 @@ The project provides:
 - An Excel VBA module for the pharmacy workflow.
 - A Python reference parser for batch conversion, tests, and CI validation.
 
-The parser returns fields plus review feedback:
+The parser returns fields plus review columns:
 
 | Field | Meaning |
 | --- | --- |

@@ -10,7 +10,7 @@
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "typecheck": "tsc",
-    "screenshots": "playwright screenshot --viewport-size=1500,760 scripts/excel-feedback.html static/img/excel-status-feedback.png && playwright screenshot --viewport-size=1500,760 scripts/excel-conversion-workflow.html static/img/excel-conversion-workflow.png && playwright screenshot --viewport-size=1280,760 scripts/macos-install.html static/img/macos-vba-install.png && playwright screenshot --viewport-size=1280,760 scripts/windows-install.html static/img/windows-vba-install.png"
+    "screenshots": "playwright screenshot --viewport-size=1500,760 scripts/review-colors.html static/img/review-colors.png && playwright screenshot --viewport-size=1500,760 scripts/excel-conversion-workflow.html static/img/excel-conversion-workflow.png && playwright screenshot --viewport-size=1280,760 scripts/macos-install.html static/img/macos-vba-install.png && playwright screenshot --viewport-size=1280,760 scripts/windows-install.html static/img/windows-vba-install.png"
   },
   "dependencies": {
     "@docusaurus/core": "^3.10.1",

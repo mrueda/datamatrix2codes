@@ -43,3 +43,29 @@
   line-height: 1.4;
   text-align: center;
 }
+
+.statusSwatch {
+  display: inline-block;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-right: 0.4rem;
+  border: 1px solid rgba(15, 23, 42, 0.24);
+  border-radius: 3px;
+  vertical-align: -0.18rem;
+}
+
+.statusSwatchOk {
+  background: #e2efda;
+}
+
+.statusSwatchPartial {
+  background: #fff2cc;
+}
+
+.statusSwatchAmbiguous {
+  background: #f8cbad;
+}
+
+.statusSwatchUnparsed {
+  background: #d9d9d9;
+}

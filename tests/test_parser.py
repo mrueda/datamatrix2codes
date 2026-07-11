@@ -112,7 +112,7 @@ class ParserFixtureTest(unittest.TestCase):
         self.assertEqual(unparsed.CONFIDENCE, 0)
         self.assertEqual(unparsed.EXPLAIN, "The scan could not be decoded. Check the scanner input or enter the values manually.")
 
-    def test_cli_writes_feedback_columns(self) -> None:
+    def test_cli_writes_review_columns(self) -> None:
         codes = ["010847000654766321ANT7T3KA311726033110231853"]
         with tempfile.TemporaryDirectory() as tmpdir:
             output = Path(tmpdir) / "out.csv"
