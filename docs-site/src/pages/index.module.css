@@ -1,0 +1,158 @@
+.page {
+  min-height: calc(100vh - var(--ifm-navbar-height));
+  background:
+    linear-gradient(90deg, rgba(14, 116, 144, 0.08) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(14, 116, 144, 0.08) 1px, transparent 1px),
+    linear-gradient(135deg, #f8fafc 0%, #ecfeff 46%, #f7fee7 100%);
+  background-size: 34px 34px, 34px 34px, auto;
+}
+
+.hero {
+  padding: 5rem 1.5rem 3.5rem;
+}
+
+.heroInner,
+.sections {
+  width: min(1160px, 100%);
+  margin: 0 auto;
+}
+
+.heroInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+  gap: 3rem;
+  align-items: center;
+}
+
+.copy h1 {
+  margin: 0;
+  color: #111827;
+  font-size: 3.35rem;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.kicker {
+  margin: 0 0 0.8rem;
+  color: #0f766e;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.lede {
+  max-width: 710px;
+  margin: 1.25rem 0 2rem;
+  color: #4b5563;
+  font-size: 1.1rem;
+  line-height: 1.65;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.sheetPreview {
+  overflow: hidden;
+  border: 1px solid rgba(15, 118, 110, 0.22);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 28px 70px rgba(17, 24, 39, 0.16);
+}
+
+.sheetTitle {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #d1d5db;
+  background: #0f4c5c;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.sheetPreview table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.sheetPreview th,
+.sheetPreview td {
+  padding: 0.72rem;
+  border: 1px solid #d1d5db;
+  text-align: left;
+}
+
+.sheetPreview th {
+  background: #1f4e79;
+  color: #ffffff;
+}
+
+.ok {
+  background: #e2efda;
+}
+
+.partial {
+  background: #fff2cc;
+}
+
+.ambiguous {
+  background: #f8cbad;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+  padding: 0 1.5rem 4rem;
+}
+
+.card {
+  display: grid;
+  gap: 0.4rem;
+  min-height: 172px;
+  padding: 1.15rem;
+  border: 1px solid rgba(15, 118, 110, 0.16);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff, rgba(236, 254, 255, 0.72));
+  box-shadow: 0 16px 38px rgba(17, 24, 39, 0.08);
+  color: #111827;
+  text-decoration: none;
+}
+
+.card:hover {
+  color: #111827;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.card span {
+  color: #0f766e;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.card h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.25rem;
+}
+
+.card p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+  .heroInner {
+    grid-template-columns: 1fr;
+  }
+
+  .copy h1 {
+    font-size: 2.35rem;
+  }
+}

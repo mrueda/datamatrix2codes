@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Synthetic macOS Excel install</title>
+    <style>
+      body {
+        margin: 0;
+        background: linear-gradient(135deg, #f8fafc, #ecfeff);
+        color: #111827;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      .desktop {
+        width: 1280px;
+        height: 760px;
+        padding: 42px;
+        box-sizing: border-box;
+      }
+
+      .window {
+        overflow: hidden;
+        border: 1px solid #cbd5e1;
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 28px 70px rgba(15, 23, 42, 0.2);
+      }
+
+      .titlebar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 14px 18px;
+        border-bottom: 1px solid #d1d5db;
+        background: #f8fafc;
+      }
+
+      .dot {
+        width: 13px;
+        height: 13px;
+        border-radius: 999px;
+      }
+
+      .red { background: #ff5f57; }
+      .yellow { background: #febc2e; }
+      .green { background: #28c840; }
+
+      .title {
+        margin-left: 18px;
+        color: #374151;
+        font-weight: 700;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 330px 1fr;
+        min-height: 560px;
+      }
+
+      .sidebar {
+        padding: 22px;
+        border-right: 1px solid #d1d5db;
+        background: #f3f4f6;
+      }
+
+      .sidebar h2 {
+        margin: 0 0 18px;
+        font-size: 20px;
+      }
+
+      .module {
+        padding: 12px;
+        border-radius: 8px;
+        background: #dbeafe;
+        color: #1e3a8a;
+        font-weight: 800;
+      }
+
+      .menu {
+        margin-bottom: 14px;
+        padding: 10px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 7px;
+        background: #ffffff;
+        color: #334155;
+        font-size: 14px;
+      }
+
+      .menu strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #111827;
+      }
+
+      .import {
+        border: 2px solid #0f766e;
+        background: #ecfdf5;
+        color: #064e3b;
+        font-weight: 800;
+      }
+
+      .main {
+        padding: 26px;
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+
+      .button {
+        padding: 9px 13px;
+        border-radius: 7px;
+        background: #0f766e;
+        color: #ffffff;
+        font-weight: 800;
+      }
+
+      .sheet {
+        border: 1px solid #cbd5e1;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #cbd5e1;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      th {
+        background: #1f4e79;
+        color: #ffffff;
+        text-align: left;
+      }
+
+      .ok { background: #e2efda; }
+      .partial { background: #fff2cc; }
+
+      .caption {
+        margin-top: 18px;
+        color: #4b5563;
+        font-size: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="desktop">
+      <section class="window">
+        <div class="titlebar">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+          <span class="title">Excel for Mac - datamatrix2codes demo.xlsm</span>
+        </div>
+        <div class="content">
+          <aside class="sidebar">
+            <h2>Visual Basic Editor</h2>
+            <div class="menu">
+              <strong>Project Explorer</strong>
+              VBAProject (demo.xlsm)<br />
+              Microsoft Excel Objects<br />
+              Modules
+            </div>
+            <div class="menu import">File > Import File...<br />ParseEncodedString.bas</div>
+            <div class="module">Module: ParseEncodedString</div>
+            <p>Run <strong>SetupDataMatrixWorksheet</strong> after scanning codes into column A.</p>
+          </aside>
+          <section class="main">
+            <div class="toolbar">
+              <span class="button">Macro-enabled workbook</span>
+              <span class="button">SetupDataMatrixWorksheet</span>
+            </div>
+            <div class="sheet">
+              <table>
+                <thead>
+                  <tr>
+                    <th>CODE</th>
+                    <th>PC</th>
+                    <th>LOTE</th>
+                    <th>STATUS</th>
+                    <th>EXPLAIN</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="ok">
+                    <td>010843523234741821...</td>
+                    <td>8435232347418</td>
+                    <td>AD801</td>
+                    <td>OK</td>
+                    <td>Code read correctly.</td>
+                  </tr>
+                  <tr class="partial">
+                    <td>010847000654766321...</td>
+                    <td>8470006547663</td>
+                    <td></td>
+                    <td>PARTIAL</td>
+                    <td>Some fields could not be found. Review this row.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="caption">Synthetic macOS example. No real product, serial, or pharmacy data is shown.</p>
+          </section>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

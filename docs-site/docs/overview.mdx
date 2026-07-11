@@ -1,0 +1,100 @@
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+# Overview
+
+`datamatrix2codes` extracts pharmacy fields from GS1 DataMatrix scanner strings used on medicinal product packages in Spain.
+
+The main workflow is Excel: a scanner types one raw string into a worksheet, then the macro extracts `PC`, `SN`, `LOTE`, and `CAD` and marks rows that need review.
+
+:::note Why this project exists
+I originally built this to help my sister, who is a pharmacist, work with scanner output in Excel. The goal is practical: make DataMatrix scans easier to review without asking pharmacy staff to use developer tools.
+:::
+
+## Spanish Pharmacy Terms
+
+In Spain, medicinal product packaging commonly uses these labels around GS1 DataMatrix codes:
+
+| Label | Spanish term | Meaning |
+| --- | --- | --- |
+| `PC` | Código Nacional | National Code. Identifies a specific drug product in Spain. |
+| `CAD` | Fecha de Caducidad | Expiry date. Returned by this tool as `YYMM`. |
+| `SN` | Número de Serie | Serial number. Used for pack-level serialization and traceability. |
+| `LOTE` | Número de Lote | Batch or lot number. Used for manufacturing and recall traceability. |
+
+## What The Box Shows
+
+People often call the square code on a medicine box a "QR code", but on Spanish medicinal product packaging this is normally a **GS1 DataMatrix** symbol. The box also prints human-readable fields nearby.
+
+<figure>
+  <img src={useBaseUrl('/img/spanish-medicine-box-example.svg')} alt="Synthetic Spanish medicine box showing printed PC, CAD, SN, LOTE fields beside a GS1 DataMatrix symbol and the scanner string sent to Excel" />
+  <figcaption>Synthetic example. The values are for documentation only and are not real product or serial data.</figcaption>
+</figure>
+
+The scanner reads the DataMatrix symbol and sends a string to Excel. It does not read the printed `PC`, `CAD`, `SN`, and `LOTE` labels as four separate lines.
+
+## The Real Problem
+
+The scanner reads the **DataMatrix symbol**, not the printed text next to it. The decoded payload is one GS1 string, and that string may contain hidden separator characters.
+
+The usual path is:
+
+1. The box has printed labels plus a GS1 DataMatrix symbol.
+2. The scanner decodes the symbol and types a one-line string.
+3. Excel receives that string, sometimes without hidden boundaries.
+4. The parser extracts fields and highlights uncertain rows.
+
+Variable-length GS1 fields such as serial number (`21`) and lot (`10`) normally need a boundary marker when another field follows. If that marker is lost before Excel receives the scan, values can contain text that looks like another Application Identifier.
+
+:::warning Why some rows need review
+Once a scanner string is flattened, some rows are genuinely ambiguous. The software should not silently invent certainty when the original boundary information is gone.
+:::
+
+## Ambiguity Example
+
+Consider a flattened scan fragment:
+
+```text
+...21SYNTH17VALUE1728110010AD801
+```
+
+Without a group separator after the serial number, there are two plausible readings:
+
+| Reading | Meaning |
+| --- | --- |
+| `21 SYNTH17VALUE` then `17 281100` | `17` inside `SYNTH17VALUE` is part of the serial number; the later `17` starts expiry. |
+| `21 SYNTH` then `17 VALUE...` | the first `17` might be treated as the start of another GS1 field, but the following value may not make a valid expiry. |
+
+If the hidden boundary had reached Excel, the string would be easier to parse:
+
+```text
+...21SYNTH17VALUE<GS>1728110010AD801
+```
+
+The parser uses GS1 rules and scoring to choose a confident parse when it can. If plausible readings still disagree, it returns `AMBIGUOUS` and leaves disputed fields blank instead of inventing a value.
+
+## What The Software Provides
+
+The project provides:
+
+- An Excel VBA module for the pharmacy workflow.
+- A Python reference parser for batch conversion, tests, and CI validation.
+
+The parser returns fields plus review feedback:
+
+| Field | Meaning |
+| --- | --- |
+| `PC` | Código Nacional / normalized GTIN |
+| `SN` | Serial number |
+| `LOTE` | Lot or batch number |
+| `CAD` | Expiry as `YYMM` |
+| `STATUS` | `OK`, `PARTIAL`, `AMBIGUOUS`, or `UNPARSED` |
+| `CONFIDENCE` | Numeric confidence from `0` to `100` |
+| `HAS_GS` | Whether the scan contained a GS1 group separator |
+| `EXPLAIN` | Short review message |
+
+Start here:
+
+- [Download `ParseEncodedString.bas`](https://raw.githubusercontent.com/mrueda/datamatrix2codes/master/macro/ParseEncodedString.bas)
+- [Excel Quick Start](./usage/excel-quickstart.md)
+- [Install in Excel for Mac](./installation/macos.md)
+- [Install in Excel for Windows](./installation/windows.md)

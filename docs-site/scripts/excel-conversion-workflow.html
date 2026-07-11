@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Synthetic Excel conversion workflow</title>
+    <style>
+      body {
+        margin: 0;
+        background: #eef2f7;
+        color: #111827;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .frame {
+        width: 1400px;
+        margin: 36px auto;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        box-shadow: 0 18px 48px rgba(15, 23, 42, 0.16);
+      }
+
+      .titlebar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        color: #ffffff;
+        background: #217346;
+        font-weight: 700;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: #e5e7eb;
+      }
+
+      .ribbon {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-bottom: 1px solid #d1d5db;
+        background: #f8fafc;
+      }
+
+      .tab {
+        padding: 7px 12px;
+        border-radius: 3px;
+        background: #e5e7eb;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .macro {
+        margin-left: 12px;
+        padding: 9px 14px;
+        border: 1px solid #166534;
+        border-radius: 3px;
+        background: #dcfce7;
+        color: #14532d;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .workflow {
+        display: grid;
+        grid-template-columns: 0.78fr 0.25fr 1.57fr;
+        gap: 14px;
+        padding: 20px;
+      }
+
+      .panel {
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+      }
+
+      .panel h2 {
+        margin: 0;
+        padding: 10px 12px;
+        background: #f1f5f9;
+        border-bottom: 1px solid #cbd5e1;
+        color: #0f172a;
+        font-size: 16px;
+        letter-spacing: 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 12px;
+      }
+
+      th,
+      td {
+        height: 38px;
+        padding: 7px 9px;
+        border: 1px solid #cbd5e1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      th {
+        background: #1f4e79;
+        color: #ffffff;
+        text-align: left;
+      }
+
+      .rownum {
+        width: 38px;
+        text-align: center;
+        background: #f3f4f6;
+        color: #475569;
+        font-weight: 700;
+      }
+
+      .raw {
+        font-family: Consolas, Monaco, monospace;
+      }
+
+      .out th,
+      .out td {
+        padding: 6px 7px;
+        font-size: 11px;
+      }
+
+      .out th:nth-child(1),
+      .out td:nth-child(1) {
+        width: 96px;
+      }
+
+      .out th:nth-child(2),
+      .out td:nth-child(2) {
+        width: 86px;
+      }
+
+      .out th:nth-child(3),
+      .out td:nth-child(3) {
+        width: 62px;
+      }
+
+      .out th:nth-child(4),
+      .out td:nth-child(4) {
+        width: 52px;
+      }
+
+      .out th:nth-child(5),
+      .out td:nth-child(5) {
+        width: 84px;
+      }
+
+      .out th:nth-child(6),
+      .out td:nth-child(6) {
+        width: 54px;
+      }
+
+      .stepper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 16px;
+      }
+
+      .step {
+        padding: 13px;
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        text-align: center;
+      }
+
+      .step strong {
+        display: block;
+        margin-bottom: 5px;
+        color: #0f172a;
+        font-size: 14px;
+      }
+
+      .step span {
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .arrow {
+        color: #217346;
+        font-size: 28px;
+        font-weight: 900;
+        text-align: center;
+      }
+
+      .ok {
+        background: #e2efda;
+        color: #375623;
+      }
+
+      .partial {
+        background: #fff2cc;
+        color: #7e6000;
+      }
+
+      .ambiguous {
+        background: #f8cbad;
+        color: #843c0c;
+      }
+
+      .blank {
+        background: #f4b084;
+        color: #9c0006;
+        font-weight: 700;
+      }
+
+      .status {
+        font-weight: 800;
+      }
+
+      .formula {
+        margin-top: 14px;
+        border-top: 1px solid #cbd5e1;
+        background: #f8fafc;
+        padding: 11px 14px;
+        font-family: Consolas, Monaco, monospace;
+        font-size: 12px;
+        color: #334155;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div class="titlebar">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span>datamatrix2codes - synthetic scanner conversion workbook</span>
+      </div>
+      <div class="ribbon">
+        <span class="tab">Home</span>
+        <span class="tab">Data</span>
+        <span class="tab">Developer</span>
+        <span class="macro">Run: SetupDataMatrixWorksheet</span>
+      </div>
+      <div class="workflow">
+        <section class="panel">
+          <h2>1. Scanner writes raw strings</h2>
+          <table class="out">
+            <thead>
+              <tr>
+                <th class="rownum"></th>
+                <th>CODE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="rownum">2</td>
+                <td class="raw">010843523234741821AWF6VCKB8F2S10AD80117281100</td>
+              </tr>
+              <tr>
+                <td class="rownum">3</td>
+                <td class="raw">010847000654766321ANT7T3KA31</td>
+              </tr>
+              <tr>
+                <td class="rownum">4</td>
+                <td class="raw">010847000700681721SYNTH17EXAMPLE17280310V06</td>
+              </tr>
+              <tr>
+                <td class="rownum">5</td>
+                <td class="raw">third-party-scanner-text-not-supported</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="formula">A2 receives exactly what the scanner sends to Excel.</div>
+        </section>
+
+        <aside class="stepper">
+          <div class="step">
+            <strong>Import .bas</strong>
+            <span>Once per workbook.</span>
+          </div>
+          <div class="arrow">-&gt;</div>
+          <div class="step">
+            <strong>Run DataMatrix2Codes</strong>
+            <span>Writes parsed values and review colors.</span>
+          </div>
+          <div class="arrow">-&gt;</div>
+          <div class="step">
+            <strong>Review rows</strong>
+            <span>Green can proceed; colored rows need attention.</span>
+          </div>
+        </aside>
+
+        <section class="panel">
+          <h2>2. Excel fills parsed columns</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>PC</th>
+                <th>SN</th>
+                <th>LOTE</th>
+                <th>CAD</th>
+                <th>STATUS</th>
+                <th>CONF.</th>
+                <th>EXPLAIN</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="ok">
+                <td>8435232347418</td>
+                <td>AWF6VCKB8F2S</td>
+                <td>AD801</td>
+                <td>2811</td>
+                <td class="status">OK</td>
+                <td>100</td>
+                <td>Code read correctly.</td>
+              </tr>
+              <tr class="partial">
+                <td>8470006547663</td>
+                <td>ANT7T3KA31</td>
+                <td class="blank"></td>
+                <td class="blank"></td>
+                <td class="status">PARTIAL</td>
+                <td>40</td>
+                <td>Review this row.</td>
+              </tr>
+              <tr class="ambiguous">
+                <td>8470007006817</td>
+                <td class="blank"></td>
+                <td>V06</td>
+                <td>2803</td>
+                <td class="status">AMBIGUOUS</td>
+                <td>75</td>
+                <td>Check the medicine box.</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="status">UNPARSED</td>
+                <td>0</td>
+                <td>Check scanner input.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="formula">B2: =ParseEncodedString(A2,"PC")</div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

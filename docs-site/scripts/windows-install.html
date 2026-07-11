@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Synthetic Windows Excel install</title>
+    <style>
+      body {
+        margin: 0;
+        background: #e5e7eb;
+        color: #111827;
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+
+      .desktop {
+        width: 1280px;
+        height: 760px;
+        padding: 40px;
+        box-sizing: border-box;
+      }
+
+      .window {
+        overflow: hidden;
+        border: 1px solid #94a3b8;
+        background: #ffffff;
+        box-shadow: 0 28px 70px rgba(15, 23, 42, 0.2);
+      }
+
+      .ribbon {
+        padding: 14px 18px;
+        background: #107c41;
+        color: #ffffff;
+        font-weight: 800;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 16px;
+        padding: 10px 18px;
+        border-bottom: 1px solid #cbd5e1;
+        background: #f8fafc;
+        color: #334155;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 310px 1fr;
+        min-height: 560px;
+      }
+
+      .project {
+        padding: 20px;
+        border-right: 1px solid #cbd5e1;
+        background: #f1f5f9;
+      }
+
+      .project h2 {
+        margin: 0 0 16px;
+        font-size: 20px;
+      }
+
+      .tree {
+        padding: 12px;
+        border-radius: 6px;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+      }
+
+      .module {
+        margin-top: 8px;
+        padding: 8px;
+        border-radius: 4px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-weight: 800;
+      }
+
+      .context {
+        margin-top: 14px;
+        padding: 10px;
+        border: 2px solid #107c41;
+        border-radius: 4px;
+        background: #ecfdf5;
+        color: #064e3b;
+        font-weight: 800;
+      }
+
+      .sheetArea {
+        padding: 22px;
+      }
+
+      .notice {
+        margin-bottom: 16px;
+        padding: 12px;
+        border-left: 5px solid #107c41;
+        background: #ecfdf5;
+        color: #064e3b;
+        font-weight: 700;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 10px;
+        border: 1px solid #cbd5e1;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      th {
+        background: #1f4e79;
+        color: #ffffff;
+        text-align: left;
+      }
+
+      .ok { background: #e2efda; }
+      .ambiguous { background: #f8cbad; }
+      .blank { background: #f4b084; }
+
+      .caption {
+        margin-top: 18px;
+        color: #4b5563;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="desktop">
+      <section class="window">
+        <div class="ribbon">Microsoft Excel - datamatrix2codes demo.xlsm</div>
+        <div class="tabs">
+          <span>File</span><span>Home</span><span>Insert</span><span>Developer</span><span>View</span>
+        </div>
+        <div class="content">
+          <aside class="project">
+            <h2>VBAProject</h2>
+            <div class="tree">
+              Modules
+              <div class="module">ParseEncodedString</div>
+            </div>
+            <div class="context">Right-click Modules > Import File...<br />ParseEncodedString.bas</div>
+            <p>Run <strong>SetupDataMatrixWorksheet</strong> from the Macros dialog.</p>
+          </aside>
+          <section class="sheetArea">
+            <div class="notice">Macros enabled. Output columns and review colors were applied.</div>
+            <table>
+              <thead>
+                <tr>
+                  <th>CODE</th>
+                  <th>PC</th>
+                  <th>SN</th>
+                  <th>LOTE</th>
+                  <th>STATUS</th>
+                  <th>EXPLAIN</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="ok">
+                  <td>010843523234741821...</td>
+                  <td>8435232347418</td>
+                  <td>AWF6VCKB8F2S</td>
+                  <td>AD801</td>
+                  <td>OK</td>
+                  <td>Code read correctly.</td>
+                </tr>
+                <tr class="ambiguous">
+                  <td>010847000700681721...</td>
+                  <td>8470007006817</td>
+                  <td class="blank"></td>
+                  <td>V06</td>
+                  <td>AMBIGUOUS</td>
+                  <td>The scan can be interpreted in more than one way. Check the medicine box.</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="caption">Synthetic Windows example. No real product, serial, or pharmacy data is shown.</p>
+          </section>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

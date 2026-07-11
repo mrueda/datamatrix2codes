@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Synthetic Excel feedback</title>
+    <style>
+      body {
+        margin: 0;
+        background: #f3f4f6;
+        color: #111827;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .frame {
+        width: 1400px;
+        margin: 48px auto;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        box-shadow: 0 18px 48px rgba(15, 23, 42, 0.16);
+      }
+
+      .bar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid #cbd5e1;
+        background: #0f4c5c;
+        color: #ffffff;
+        font-weight: 700;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: #e5e7eb;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        font-size: 13px;
+      }
+
+      th,
+      td {
+        height: 42px;
+        padding: 8px 10px;
+        border: 1px solid #cbd5e1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      th {
+        background: #1f4e79;
+        color: #ffffff;
+        text-align: left;
+      }
+
+      .code {
+        width: 390px;
+        font-family: Consolas, Monaco, monospace;
+      }
+
+      th:nth-child(9),
+      td:nth-child(9) {
+        width: 280px;
+      }
+
+      .ok {
+        background: #e2efda;
+        color: #375623;
+      }
+
+      .partial {
+        background: #fff2cc;
+        color: #7e6000;
+      }
+
+      .ambiguous {
+        background: #f8cbad;
+        color: #843c0c;
+      }
+
+      .unparsed {
+        background: #d9d9d9;
+        color: #404040;
+      }
+
+      .blank {
+        background: #f4b084;
+        color: #9c0006;
+        font-weight: 700;
+      }
+
+      .status {
+        font-weight: 800;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div class="bar">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span>datamatrix2codes synthetic Excel review</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th class="code">CODE</th>
+            <th>PC</th>
+            <th>SN</th>
+            <th>LOTE</th>
+            <th>CAD</th>
+            <th>STATUS</th>
+            <th>CONFIDENCE</th>
+            <th>HAS_GS</th>
+            <th>EXPLAIN</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ok">
+            <td class="code">010843523234741821AWF6VCKB8F2S10AD80117281100</td>
+            <td>8435232347418</td>
+            <td>AWF6VCKB8F2S</td>
+            <td>AD801</td>
+            <td>2811</td>
+            <td class="status">OK</td>
+            <td>100</td>
+            <td>FALSE</td>
+            <td>Code read correctly.</td>
+          </tr>
+          <tr class="partial">
+            <td class="code">010847000654766321ANT7T3KA31</td>
+            <td>8470006547663</td>
+            <td>ANT7T3KA31</td>
+            <td class="blank"></td>
+            <td class="blank"></td>
+            <td class="status">PARTIAL</td>
+            <td>40</td>
+            <td>FALSE</td>
+            <td>Some fields could not be found. Review this row.</td>
+          </tr>
+          <tr class="ambiguous">
+            <td class="code">010847000700681721SYNTH17EXAMPLE...</td>
+            <td>8470007006817</td>
+            <td class="blank"></td>
+            <td>V06</td>
+            <td>2803</td>
+            <td class="status">AMBIGUOUS</td>
+            <td>75</td>
+            <td>FALSE</td>
+            <td>The scan can be interpreted in more than one way. Check the medicine box.</td>
+          </tr>
+          <tr class="unparsed">
+            <td class="code">third-party-scanner-text-not-supported</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="status">UNPARSED</td>
+            <td>0</td>
+            <td>FALSE</td>
+            <td>The scan could not be decoded. Check the scanner input or enter manually.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>
