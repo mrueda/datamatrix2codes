@@ -4,6 +4,8 @@ These examples show what a pharmacist should expect after a scanner writes a raw
 
 The strings below are synthetic documentation examples. They are shaped like scanner output, but they are not real pack serials.
 
+`<GS>` means a visible placeholder for the GS1 group separator. Real Excel input may contain ASCII 29, visible `GS` as shown in SEVeM scanner validation examples, another replacement such as `<GS>`, `{GS}`, `'`, or `|`, or no visible separator character.
+
 | Raw scanner string | PC | SN | LOTE | CAD | STATUS | CONFIDENCE | HAS_GS |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `010847000654766321ANT7T3KA31<GS>1726033110231853` | `8470006547663` | `ANT7T3KA31` | `231853` | `2603` | `OK` | `100` | `TRUE` |
@@ -41,4 +43,26 @@ If Excel rejects those formulas, use semicolons instead of commas:
 
 ```excel
 =ParseEncodedString(A2;"PC")
+```
+
+## Generate Safe Test Codes
+
+Do not publish real medicine-pack serials in issues, screenshots, or test fixtures. For demos and regression tests, generate synthetic scanner strings from the repository root:
+
+```bash
+python3 tools/generate_synthetic_codes.py --count 20 > synthetic-codes.csv
+```
+
+The generated CSV includes the raw `CODE`, the expected parsed fields, and the expected parser status. It deliberately includes clean, flattened, partial, ambiguous, and unparsed examples.
+
+To generate only ambiguous examples:
+
+```bash
+python3 tools/generate_synthetic_codes.py --status ambiguous --count 20 > ambiguous-codes.csv
+```
+
+To generate rows containing a real ASCII 29 GS1 group separator instead of visible `<GS>` text:
+
+```bash
+python3 tools/generate_synthetic_codes.py --count 20 --separator ascii29 > synthetic-codes.csv
 ```

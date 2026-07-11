@@ -9,6 +9,7 @@ import re
 GROUP_SEPARATOR = "\x1d"
 
 TARGET_FIELDS = ("PC", "SN", "LOTE", "CAD")
+AI_MARKER = r"(?:01|10|17|21|71)"
 
 
 @dataclass(frozen=True)
@@ -75,6 +76,12 @@ def parse_encoded_string(encoded: str) -> ParseResult:
         status = "AMBIGUOUS"
         ambiguous = True
         fields = blank_disputed_fields(comparable)
+    elif status == "OK" and not has_gs:
+        risky = risky_short_serial_splits(best, ranked)
+        if risky:
+            status = "AMBIGUOUS"
+            ambiguous = True
+            fields = blank_disputed_fields([best, *risky])
 
     confidence = confidence_for(status, fields, best.leftover)
     explain = explain_result(status, fields, best.leftover, has_gs, ambiguous)
@@ -93,7 +100,12 @@ def parse_encoded_string(encoded: str) -> ParseResult:
 
 def has_group_separator(encoded: str) -> bool:
     value = str(encoded or "")
-    return GROUP_SEPARATOR in value or "<GS>" in value or "{GS}" in value
+    return bool(
+        GROUP_SEPARATOR in value
+        or "<GS>" in value
+        or "{GS}" in value
+        or re.search(rf"(?:GS|\||')(?={AI_MARKER})", value)
+    )
 
 
 def normalize_input(encoded: str) -> str:
@@ -102,7 +114,8 @@ def normalize_input(encoded: str) -> str:
         value = value[3:]
     value = value.replace("<GS>", GROUP_SEPARATOR)
     value = value.replace("{GS}", GROUP_SEPARATOR)
-    value = re.sub(r"[\s\r\n\t]+", "", value)
+    value = re.sub(rf"(?:GS|\||')(?={AI_MARKER})", GROUP_SEPARATOR, value)
+    value = re.sub(r"[\r\n\t]+", "", value)
     return value
 
 
@@ -139,7 +152,7 @@ def parse_candidates(value: str) -> list[Candidate]:
             results.extend(parse_variable(value, walk, pos + 2, "LOTE", 3, 20))
 
         if value.startswith("21", pos):
-            results.extend(parse_variable(value, walk, pos + 2, "SN", 8, 20))
+            results.extend(parse_variable(value, walk, pos + 2, "SN", 1, 20))
 
         if not results:
             return (Candidate(leftover=value[pos:]),)
@@ -183,7 +196,7 @@ def normalize_gtin(gtin: str) -> str:
 
 
 def valid_variable_value(value: str) -> bool:
-    return bool(value) and all(char.isalnum() for char in value)
+    return bool(value) and all(char == " " or 32 <= ord(char) <= 126 for char in value)
 
 
 def valid_expiry(expiry: str) -> bool:
@@ -243,6 +256,27 @@ def blank_disputed_fields(candidates: list[Candidate]) -> dict[str, str]:
         values = {candidate.as_dict().get(name, "") for candidate in candidates}
         resolved[name] = values.pop() if len(values) == 1 else ""
     return resolved
+
+
+def risky_short_serial_splits(best: Candidate, ranked: list[Candidate]) -> list[Candidate]:
+    fields = best.as_dict()
+    serial = fields.get("SN", "")
+    if len(serial) >= 8:
+        return []
+
+    alternatives: list[Candidate] = []
+    for candidate in ranked[1:]:
+        other = candidate.as_dict()
+        if other == fields:
+            continue
+        if other.get("PC") != fields.get("PC"):
+            continue
+        if candidate.leftover:
+            continue
+        if sum(1 for name in TARGET_FIELDS if other.get(name)) < 3:
+            continue
+        alternatives.append(candidate)
+    return alternatives
 
 
 def confidence_for(status: str, fields: dict[str, str], leftover: str) -> int:

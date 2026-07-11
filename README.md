@@ -8,7 +8,7 @@
 
 # datamatrix2codes
 
-**Parser for strings obtained from GS1 DataMatrix 2D barcodes on medicine boxes in Spain.**
+**Parser for strings obtained from GS1 DataMatrix 2D barcodes, often called matriz de datos in Spain, on medicine boxes.**
 
 [![Build and test](https://github.com/mrueda/datamatrix2codes/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/mrueda/datamatrix2codes/actions/workflows/build-and-test.yml)
 [![Documentation deploy](https://github.com/mrueda/datamatrix2codes/actions/workflows/documentation.yml/badge.svg)](https://github.com/mrueda/datamatrix2codes/actions/workflows/documentation.yml)
@@ -18,7 +18,7 @@
 
 `datamatrix2codes` helps pharmacists turn raw scanner strings from Spanish medicine packages into Excel columns such as `PC`, `SN`, `LOTE`, and `CAD`.
 
-The important detail is that many scanners already decode the DataMatrix barcode, but then send Excel a flattened string where GS1 separators may be missing. This tool tries to recover the fields and marks uncertain rows for review instead of pretending they are certain.
+A scanner or app may read the GS1 DataMatrix image and send Excel the raw decoded string. That string is not four separate values; it is a GS1 payload made of Application Identifiers such as `01`, `17`, `10`, and `21`. The hard part is interpreting that payload, especially when variable-length fields such as lot (`10`) or serial (`21`) are followed by more fields. The same digit sequences can appear inside real values, so some strings cannot be split with certainty. This tool recovers what it can and marks uncertain rows for review.
 
 ## Start Here
 
@@ -35,6 +35,13 @@ python3 -m pip install -e .
 python3 -m unittest discover -s tests -v
 python3 -m py_compile src/datamatrix2codes/*.py tests/*.py
 python3 -m datamatrix2codes data/codes.csv output.csv
+```
+
+The repository includes a synthetic-code generator so demos and tests can use realistic scanner strings without publishing real medicine-pack serials:
+
+```bash
+python3 tools/generate_synthetic_codes.py --count 20 > synthetic-codes.csv
+python3 tools/generate_synthetic_codes.py --status ambiguous --count 20 > ambiguous-codes.csv
 ```
 
 Docs checks:

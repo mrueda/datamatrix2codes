@@ -33,7 +33,7 @@ In Spain, medicinal product packaging commonly uses these labels around GS1 Data
 
 ## What The Box Shows
 
-People often call the square code on a medicine box a "QR code", but on Spanish medicinal product packaging this is normally a **GS1 DataMatrix** symbol. The box also prints human-readable fields nearby.
+People often call the square code on a medicine box a "QR code", but on Spanish medicinal product packaging this is normally a **GS1 DataMatrix** symbol, often described in Spanish as a **matriz de datos**. The camera or scanner sensor may be perfectly capable of capturing it. The important difference is the decoding software, firmware, or app configuration: it must preserve the GS1 structure that separates the fields.
 
 <figure>
   <img src={useBaseUrl('/img/spanish-medicine-box-example.svg')} alt="Synthetic Spanish medicine box showing printed PC, CAD, SN, LOTE fields beside a GS1 DataMatrix symbol and the scanner string sent to Excel" />
@@ -44,19 +44,21 @@ The scanner reads the DataMatrix symbol and sends a string to Excel. It does not
 
 ## The Real Problem
 
-The scanner reads the **DataMatrix symbol**, not the printed text next to it. The decoded payload is one GS1 string, and that string may contain hidden separator characters.
+The scanner reads the **DataMatrix symbol**, not the printed text next to it. The decoded payload is one GS1 string. It is not four separate values; it is a sequence of Application Identifiers and values.
+
+The failure mode this project targets is interpretation ambiguity. For example, `17` can mark the expiry-date field, but the same digits can also appear inside a serial number. The parser has to decide which occurrences of `01`, `17`, `10`, and `21` are field starts and which are part of a value.
 
 The usual path is:
 
 1. The box has printed labels plus a GS1 DataMatrix symbol.
 2. The scanner decodes the symbol and types a one-line string.
-3. Excel receives that string, sometimes without hidden boundaries.
+3. Excel receives that raw GS1 payload string.
 4. The parser extracts fields and highlights uncertain rows.
 
-Variable-length GS1 fields such as serial number (`21`) and lot (`10`) normally need a boundary marker when another field follows. If that marker is lost before Excel receives the scan, values can contain text that looks like another Application Identifier.
+Variable-length GS1 fields such as serial number (`21`) and lot (`10`) are the difficult cases. Their values can be followed by more fields, and their values can contain the same digit sequences used to start other fields.
 
 :::warning Why some rows need review
-Once a scanner string is flattened, some rows are genuinely ambiguous. The software should not silently invent certainty when the original boundary information is gone.
+Some raw scanner strings are genuinely ambiguous. This is not a weakness of one scanner or one parser. If more than one GS1 interpretation fits the same text, the software should not silently invent certainty.
 :::
 
 ## Ambiguity Example
@@ -67,18 +69,20 @@ Consider a flattened scan fragment:
 ...21SYNTH17VALUE1728110010AD801
 ```
 
-Without a group separator after the serial number, there are two plausible readings:
+There are two plausible readings:
 
 | Reading | Meaning |
 | --- | --- |
 | `21 SYNTH17VALUE` then `17 281100` | `17` inside `SYNTH17VALUE` is part of the serial number; the later `17` starts expiry. |
 | `21 SYNTH` then `17 VALUE...` | the first `17` might be treated as the start of another GS1 field, but the following value may not make a valid expiry. |
 
-If the hidden boundary had reached Excel, the string would be easier to parse:
+If an explicit separator is present in the scanner string, the boundary is easier to parse:
 
 ```text
 ...21SYNTH17VALUE<GS>1728110010AD801
 ```
+
+Here `<GS>` is documentation notation for the GS1 group separator character. SEVeM's scanner validation sheet shows the same idea as visible `GS`; depending on scanner configuration, Excel may show `GS`, `<GS>`, `'`, `|`, another replacement, or nothing visible.
 
 The parser uses GS1 rules and scoring to choose a confident parse when it can. If plausible readings still disagree, it returns `AMBIGUOUS` and leaves disputed fields blank instead of inventing a value.
 

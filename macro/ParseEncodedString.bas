@@ -168,8 +168,8 @@ DiagnoseError:
 End Sub
 
 Public Sub RunDataMatrixSelfTest()
-    Dim codes(1 To 13) As String
-    Dim expected(1 To 13, 1 To 4) As String
+    Dim codes(1 To 17) As String
+    Dim expected(1 To 17, 1 To 4) As String
     Dim i As Long
     Dim failures As String
     Dim parsed As String
@@ -200,8 +200,16 @@ Public Sub RunDataMatrixSelfTest()
     expected(12, 1) = "18901079106336": expected(12, 2) = "805827139204": expected(12, 3) = "HFZ022058": expected(12, 4) = "2610"
     codes(13) = "0108470007210764211002664707361010A59112B17260430"
     expected(13, 1) = "8470007210764": expected(13, 2) = "10026647073610": expected(13, 3) = "A59112B": expected(13, 4) = "2604"
+    codes(14) = "01084365715201041721010010LETRASGRANDESGS21letraspequenasGS7127166559"
+    expected(14, 1) = "8436571520104": expected(14, 2) = "letraspequenas": expected(14, 3) = "LETRASGRANDES": expected(14, 4) = "2101"
+    codes(15) = "01084365715201041721010010////_ _ _ _GS21----....GS7127166559"
+    expected(15, 1) = "8436571520104": expected(15, 2) = "----....": expected(15, 3) = "////_ _ _ _": expected(15, 4) = "2101"
+    codes(16) = "01084365715201041721010010ZZZZZGS21YYYYYGS7127166559"
+    expected(16, 1) = "8436571520104": expected(16, 2) = "YYYYY": expected(16, 3) = "ZZZZZ": expected(16, 4) = "2101"
+    codes(17) = "010843657152010417210100101234567890GS21ABCDEFGS7127166559"
+    expected(17, 1) = "8436571520104": expected(17, 2) = "ABCDEF": expected(17, 3) = "1234567890": expected(17, 4) = "2101"
 
-    For i = 1 To 13
+    For i = 1 To 17
         parsed = ParseDataMatrix(codes(i))
         If CandidatePart(parsed, 0) <> expected(i, 1) Or _
            CandidatePart(parsed, 1) <> expected(i, 2) Or _
@@ -255,7 +263,7 @@ Private Function ParseDataMatrix(encodedStr As Variant) As String
         If ScoreCandidate(candidates(i)) = bestScore Then ties.Add candidates(i)
     Next i
 
-    result = ResolveTies(best, ties, HasGroupSeparator(encodedStr))
+    result = ResolveTies(best, ties, HasGroupSeparator(encodedStr), candidates)
     ParseDataMatrix = result
 End Function
 
@@ -265,7 +273,8 @@ Private Function HasGroupSeparator(value As Variant) As Boolean
     text = SafeText(value)
     HasGroupSeparator = (InStr(1, text, Chr$(29), vbBinaryCompare) > 0 Or _
                          InStr(1, text, "<GS>", vbTextCompare) > 0 Or _
-                         InStr(1, text, "{GS}", vbTextCompare) > 0)
+                         InStr(1, text, "{GS}", vbTextCompare) > 0 Or _
+                         HasVisibleSeparatorBeforeAi(text))
 End Function
 
 Private Function NormalizeInput(value As Variant) As String
@@ -280,15 +289,48 @@ Private Function NormalizeInput(value As Variant) As String
     text = Replace$(text, "{GS}", Chr$(29))
 
     For i = 1 To Len(text)
-        ch = Mid$(text, i, 1)
-        If ch = Chr$(29) Then
+        If Mid$(text, i, 2) = "GS" And IsAiMarkerAt(text, i + 2) Then
             result = result & GROUP_SEPARATOR
-        ElseIf ch <> " " And ch <> vbTab And ch <> vbCr And ch <> vbLf Then
-            result = result & ch
+            i = i + 1
+        ElseIf (Mid$(text, i, 1) = "|" Or Mid$(text, i, 1) = "'") And IsAiMarkerAt(text, i + 1) Then
+            result = result & GROUP_SEPARATOR
+        Else
+            ch = Mid$(text, i, 1)
+            If ch = Chr$(29) Then
+                result = result & GROUP_SEPARATOR
+            ElseIf ch <> vbTab And ch <> vbCr And ch <> vbLf Then
+                result = result & ch
+            End If
         End If
     Next i
 
     NormalizeInput = result
+End Function
+
+Private Function HasVisibleSeparatorBeforeAi(text As String) As Boolean
+    Dim i As Long
+
+    For i = 1 To Len(text)
+        If Mid$(text, i, 2) = "GS" And IsAiMarkerAt(text, i + 2) Then
+            HasVisibleSeparatorBeforeAi = True
+            Exit Function
+        End If
+        If (Mid$(text, i, 1) = "|" Or Mid$(text, i, 1) = "'") And IsAiMarkerAt(text, i + 1) Then
+            HasVisibleSeparatorBeforeAi = True
+            Exit Function
+        End If
+    Next i
+End Function
+
+Private Function IsAiMarkerAt(text As String, pos As Long) As Boolean
+    Dim marker As String
+
+    If pos < 1 Or pos + 1 > Len(text) Then Exit Function
+    marker = Mid$(text, pos, 2)
+    Select Case marker
+        Case "01", "10", "17", "21", "71"
+            IsAiMarkerAt = True
+    End Select
 End Function
 
 Private Function SafeText(value As Variant) As String
@@ -365,7 +407,7 @@ Private Function WalkCandidates(value As String, pos As Long) As Collection
     End If
 
     If Mid$(value, pos, 2) = "10" Then AddVariableCandidates results, value, pos + 2, "LOTE", 3, 20
-    If Mid$(value, pos, 2) = "21" Then AddVariableCandidates results, value, pos + 2, "SN", 8, 20
+    If Mid$(value, pos, 2) = "21" Then AddVariableCandidates results, value, pos + 2, "SN", 1, 20
 
     If results.Count = 0 Then results.Add CandidateText("", "", "", "", 0, Mid$(value, pos), "")
     Set WalkCandidates = results
@@ -411,7 +453,7 @@ Private Sub AddVariableCandidates(results As Collection, value As String, startP
     Next length
 End Sub
 
-Private Function ResolveTies(best As String, ties As Collection, hasGs As Boolean) As String
+Private Function ResolveTies(best As String, ties As Collection, hasGs As Boolean, allCandidates As Collection) As String
     Dim pc As String
     Dim sn As String
     Dim lote As String
@@ -435,6 +477,22 @@ Private Function ResolveTies(best As String, ties As Collection, hasGs As Boolea
         If CandidatePart(CStr(item), 3) <> cad Then cad = "": status = "AMBIGUOUS": explain = "The scan can be interpreted in more than one way. Check the medicine box."
     Next item
 
+    If status = "OK" And Not hasGs And Len(sn) > 0 And Len(sn) < 8 Then
+        For Each item In allCandidates
+            If CStr(item) <> best And _
+               CandidatePart(CStr(item), 0) = CandidatePart(best, 0) And _
+               Len(CandidatePart(CStr(item), 5)) = 0 And _
+               CountParsedFields(CStr(item)) >= 3 Then
+                If CandidatePart(CStr(item), 0) <> pc Then pc = ""
+                If CandidatePart(CStr(item), 1) <> sn Then sn = ""
+                If CandidatePart(CStr(item), 2) <> lote Then lote = ""
+                If CandidatePart(CStr(item), 3) <> cad Then cad = ""
+                status = "AMBIGUOUS"
+                explain = "The scan can be interpreted in more than one way. Check the medicine box."
+            End If
+        Next item
+    End If
+
     If status = "PARTIAL" Then explain = BuildPartialExplain(pc, sn, lote, cad, CandidatePart(best, 5))
     If Len(pc) = 0 And Len(sn) = 0 And Len(lote) = 0 And Len(cad) = 0 Then
         status = "UNPARSED"
@@ -442,6 +500,13 @@ Private Function ResolveTies(best As String, ties As Collection, hasGs As Boolea
     End If
 
     ResolveTies = CandidateText(pc, sn, lote, cad, CLng(CandidatePart(best, 4)), CandidatePart(best, 5), status, CStr(ConfidenceFor(status, pc, sn, lote, cad, CandidatePart(best, 5))), BoolText(hasGs), explain)
+End Function
+
+Private Function CountParsedFields(candidate As String) As Long
+    If Len(CandidatePart(candidate, 0)) > 0 Then CountParsedFields = CountParsedFields + 1
+    If Len(CandidatePart(candidate, 1)) > 0 Then CountParsedFields = CountParsedFields + 1
+    If Len(CandidatePart(candidate, 2)) > 0 Then CountParsedFields = CountParsedFields + 1
+    If Len(CandidatePart(candidate, 3)) > 0 Then CountParsedFields = CountParsedFields + 1
 End Function
 
 Private Function ScoreCandidate(candidate As String) As Long
@@ -540,10 +605,12 @@ End Function
 Private Function IsVariableValue(value As String) As Boolean
     Dim i As Long
     Dim ch As String
+    Dim code As Long
     If Len(value) = 0 Then Exit Function
     For i = 1 To Len(value)
         ch = Mid$(value, i, 1)
-        If Not ((ch >= "0" And ch <= "9") Or (ch >= "A" And ch <= "Z") Or (ch >= "a" And ch <= "z")) Then Exit Function
+        code = AscW(ch)
+        If code < 32 Or code > 126 Then Exit Function
     Next i
     IsVariableValue = True
 End Function

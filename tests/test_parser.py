@@ -72,6 +72,37 @@ class ParserFixtureTest(unittest.TestCase):
         self.assertTrue(parsed.HAS_GS)
         self.assertEqual(parsed.EXPLAIN, "Code read correctly with scanner separators.")
 
+    def test_sevem_scanner_validation_examples(self) -> None:
+        cases = [
+            (
+                "01084365715201041721010010LETRASGRANDESGS21letraspequenasGS7127166559",
+                {"SN": "letraspequenas", "LOTE": "LETRASGRANDES"},
+            ),
+            (
+                "01084365715201041721010010////_ _ _ _GS21----....GS7127166559",
+                {"SN": "----....", "LOTE": "////_ _ _ _"},
+            ),
+            (
+                "01084365715201041721010010ZZZZZGS21YYYYYGS7127166559",
+                {"SN": "YYYYY", "LOTE": "ZZZZZ"},
+            ),
+            (
+                "010843657152010417210100101234567890GS21ABCDEFGS7127166559",
+                {"SN": "ABCDEF", "LOTE": "1234567890"},
+            ),
+        ]
+
+        for code, wanted in cases:
+            with self.subTest(code=code):
+                parsed = parse_encoded_string(code)
+                self.assertEqual(parsed.PC, "8436571520104")
+                self.assertEqual(parsed.SN, wanted["SN"])
+                self.assertEqual(parsed.LOTE, wanted["LOTE"])
+                self.assertEqual(parsed.CAD, "2101")
+                self.assertEqual(parsed.STATUS, "OK")
+                self.assertEqual(parsed.CONFIDENCE, 100)
+                self.assertTrue(parsed.HAS_GS)
+
     def test_known_old_failure_cases_are_fixed(self) -> None:
         cases = [
             (
@@ -164,7 +195,7 @@ class ParserFixtureTest(unittest.TestCase):
         self.assertEqual(duplicate_pc.STATUS, "UNPARSED")
         self.assertEqual(duplicate_pc.PC, "")
 
-        bad_serial_value = parse_encoded_string("010847000654766321ABC-DEF-XYZ")
+        bad_serial_value = parse_encoded_string("010847000654766321\x1eABCDEF")
         self.assertEqual(bad_serial_value.STATUS, "PARTIAL")
         self.assertEqual(bad_serial_value.SN, "")
 
