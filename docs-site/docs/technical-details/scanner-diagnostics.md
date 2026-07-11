@@ -8,6 +8,12 @@ SEVeM publishes an official one-page scanner validation sheet for Spanish DataMa
 
 The main question is what string Excel actually received. Some scanner strings include ASCII character 29, the GS1 group separator. Some are plain flattened text. Both are still strings; the difference is whether an explicit boundary marker is present for variable-length fields.
 
+:::info What "GS" Means Here
+In this project, `GS` means "group separator", not ordinary letters `G` and `S` inside a value. In the real encoded payload this may be ASCII character 29. Some scanners replace that hidden character with visible text such as `GS`, `<GS>`, `'`, or `|`.
+
+If the scanner does not show any separator, the parser has to infer where variable-length fields end. That is where ambiguity comes from.
+:::
+
 ## Excel Character Check
 
 If the scan is in `A1`, fill this formula downward:
