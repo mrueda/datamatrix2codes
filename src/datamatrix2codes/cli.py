@@ -14,13 +14,8 @@ def read_codes(path: Path, column: str | None) -> list[str]:
     with path.open(newline="", encoding="utf-8-sig") as handle:
         sample = handle.read(2048)
         handle.seek(0)
-        try:
-            has_header = csv.Sniffer().has_header(sample) if sample.strip() else False
-        except csv.Error:
-            has_header = False
         first_line = sample.splitlines()[0].strip().lstrip("\ufeff") if sample.splitlines() else ""
-        if first_line.upper() == (column or "CODE").upper():
-            has_header = True
+        has_header = first_line.upper() == (column or "CODE").upper()
 
         if column or has_header:
             reader = csv.DictReader(handle)

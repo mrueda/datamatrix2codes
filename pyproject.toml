@@ -17,4 +17,5 @@ authors = [
 datamatrix2codes = "datamatrix2codes.cli:main"
 
 [tool.setuptools]
+package-dir = { "" = "src" }
 packages = ["datamatrix2codes"]

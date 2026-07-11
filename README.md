@@ -33,6 +33,7 @@ The important detail is that many scanners already decode the DataMatrix barcode
 ```bash
 python3 -m pip install -e .
 python3 -m unittest discover -s tests -v
+python3 -m py_compile src/datamatrix2codes/*.py tests/*.py
 python3 -m datamatrix2codes data/codes.csv output.csv
 ```
 

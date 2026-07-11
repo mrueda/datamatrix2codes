@@ -2,7 +2,13 @@
 
 The Python CLI is the tested reference implementation. It is useful for batch checks, CI, and debugging outside Excel.
 
-Run from the repository root:
+Install it from the repository root:
+
+```bash
+python3 -m pip install -e .
+```
+
+Then run:
 
 ```bash
 python3 -m datamatrix2codes data/codes.csv output.csv
@@ -26,8 +32,8 @@ Output columns:
 CODE,PC,SN,LOTE,CAD,STATUS,CONFIDENCE,HAS_GS,EXPLAIN
 ```
 
-Run tests:
+Run tests from the repository root:
 
 ```bash
-python3 -m unittest -v
+python3 -m unittest discover -s tests -v
 ```

@@ -8,6 +8,7 @@
 }
 
 .heroInner,
+.workflowInner,
 .sections {
   width: min(1160px, 100%);
   margin: 0 auto;
@@ -95,6 +96,30 @@
 
 .ambiguous {
   background: #f8cbad;
+}
+
+.workflow {
+  padding: 0 1.5rem 3rem;
+}
+
+.workflowInner {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.workflowInner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 20px 48px rgba(17, 24, 39, 0.12);
+}
+
+.workflowInner p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.95rem;
 }
 
 .grid {

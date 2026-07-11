@@ -2,10 +2,6 @@ name: Build and test
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -37,7 +33,7 @@ jobs:
         run: python -m unittest -v
 
       - name: Compile Python files
-        run: python -m py_compile datamatrix2codes/*.py tests/*.py
+        run: python -m py_compile src/datamatrix2codes/*.py tests/*.py
 
       - name: Check VBA portability
         run: |

@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import csv
+import io
+import runpy
+import sys
 import tempfile
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
+from unittest.mock import patch
 
-from datamatrix2codes.cli import read_codes, write_results
+from datamatrix2codes.cli import main, read_codes, write_results
 from datamatrix2codes import parse_encoded_string
 
 
@@ -112,6 +117,57 @@ class ParserFixtureTest(unittest.TestCase):
         self.assertEqual(unparsed.CONFIDENCE, 0)
         self.assertEqual(unparsed.EXPLAIN, "The scan could not be decoded. Check the scanner input or enter the values manually.")
 
+    def test_empty_prefixed_visible_separator_and_ambiguous_inputs(self) -> None:
+        empty = parse_encoded_string("  \n\t ")
+        self.assertEqual(empty.STATUS, "UNPARSED")
+        self.assertEqual(empty.EXPLAIN, "No scan was provided.")
+
+        prefixed = parse_encoded_string("]d2010847000654766321ANT7T3KA31<GS>1726033110231853")
+        self.assertEqual(prefixed.PC, "8470006547663")
+        self.assertEqual(prefixed.SN, "ANT7T3KA31")
+        self.assertEqual(prefixed.LOTE, "231853")
+        self.assertEqual(prefixed.CAD, "2603")
+        self.assertEqual(prefixed.STATUS, "OK")
+        self.assertTrue(prefixed.HAS_GS)
+
+        braced = parse_encoded_string("010847000654766321ANT7T3KA31{GS}1726033110231853")
+        self.assertEqual(braced.STATUS, "OK")
+        self.assertTrue(braced.HAS_GS)
+
+        ambiguous = parse_encoded_string("010847000700681721AAAA171728110010LOT")
+        self.assertEqual(ambiguous.PC, "8470007006817")
+        self.assertEqual(ambiguous.SN, "")
+        self.assertEqual(ambiguous.LOTE, "")
+        self.assertEqual(ambiguous.CAD, "")
+        self.assertEqual(ambiguous.STATUS, "AMBIGUOUS")
+        self.assertEqual(ambiguous.CONFIDENCE, 55)
+        self.assertEqual(ambiguous.EXPLAIN, "The scan can be interpreted in more than one way. Check the medicine box.")
+
+    def test_invalid_dates_and_problematic_values_are_rejected(self) -> None:
+        impossible_month = parse_encoded_string("010847000654766317991300")
+        self.assertEqual(impossible_month.STATUS, "PARTIAL")
+        self.assertEqual(impossible_month.PC, "8470006547663")
+        self.assertEqual(impossible_month.CAD, "")
+
+        impossible_day = parse_encoded_string("010847000654766317250230")
+        self.assertEqual(impossible_day.STATUS, "PARTIAL")
+        self.assertEqual(impossible_day.CAD, "")
+
+        day_zero = parse_encoded_string("010847000654766317261100")
+        self.assertEqual(day_zero.STATUS, "PARTIAL")
+        self.assertEqual(day_zero.CAD, "2611")
+
+        bad_gtin = parse_encoded_string("011234")
+        self.assertEqual(bad_gtin.STATUS, "UNPARSED")
+
+        duplicate_pc = parse_encoded_string("01084700065476630108470006547663")
+        self.assertEqual(duplicate_pc.STATUS, "UNPARSED")
+        self.assertEqual(duplicate_pc.PC, "")
+
+        bad_serial_value = parse_encoded_string("010847000654766321ABC-DEF-XYZ")
+        self.assertEqual(bad_serial_value.STATUS, "PARTIAL")
+        self.assertEqual(bad_serial_value.SN, "")
+
     def test_cli_writes_review_columns(self) -> None:
         codes = ["010847000654766321ANT7T3KA311726033110231853"]
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -126,13 +182,65 @@ class ParserFixtureTest(unittest.TestCase):
         self.assertEqual(rows[0]["HAS_GS"], "FALSE")
         self.assertEqual(rows[0]["EXPLAIN"], "Code read correctly.")
 
-    def test_cli_reads_header_code_column(self) -> None:
+    def test_cli_reads_header_custom_and_plain_inputs(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             input_path = Path(tmpdir) / "in.csv"
             input_path.write_text("CODE\n010847000654766321ANT7T3KA311726033110231853\n", encoding="utf-8")
             codes = read_codes(input_path, None)
 
         self.assertEqual(codes, ["010847000654766321ANT7T3KA311726033110231853"])
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "custom.csv"
+            input_path.write_text("RAW,NOTE\n010847000654766321ANT7T3KA311726033110231853,ok\n,blank\n", encoding="utf-8")
+            codes = read_codes(input_path, "RAW")
+
+        self.assertEqual(codes, ["010847000654766321ANT7T3KA311726033110231853"])
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "plain.csv"
+            input_path.write_text("010847000654766321ANT7T3KA311726033110231853\n\n", encoding="utf-8")
+            codes = read_codes(input_path, None)
+
+        self.assertEqual(codes, ["010847000654766321ANT7T3KA311726033110231853"])
+
+    def test_cli_rejects_missing_column(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "in.csv"
+            input_path.write_text("OTHER\n010847000654766321ANT7T3KA311726033110231853\n", encoding="utf-8")
+            with self.assertRaisesRegex(SystemExit, "Input CSV does not contain column 'CODE'"):
+                read_codes(input_path, "CODE")
+
+    def test_cli_main_success_and_io_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "in.csv"
+            output_path = Path(tmpdir) / "out.csv"
+            input_path.write_text("CODE\n010847000654766321ANT7T3KA311726033110231853\n", encoding="utf-8")
+
+            self.assertEqual(main([str(input_path), str(output_path)]), 0)
+            with output_path.open(newline="", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+
+        self.assertEqual(rows[0]["PC"], "8470006547663")
+
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            exit_code = main(["missing.csv", "out.csv"])
+        self.assertEqual(exit_code, 1)
+        self.assertIn("datamatrix2codes:", stderr.getvalue())
+
+    def test_module_entrypoint(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "in.csv"
+            output_path = Path(tmpdir) / "out.csv"
+            input_path.write_text("CODE\n010847000654766321ANT7T3KA311726033110231853\n", encoding="utf-8")
+            argv = ["python -m datamatrix2codes", str(input_path), str(output_path)]
+
+            with patch.object(sys, "argv", argv), self.assertRaises(SystemExit) as raised:
+                runpy.run_module("datamatrix2codes", run_name="__main__")
+
+            self.assertEqual(raised.exception.code, 0)
+            self.assertTrue(output_path.exists())
 
 
 if __name__ == "__main__":

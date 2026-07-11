@@ -2,11 +2,6 @@ name: Documentation
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main, master]
-    paths:
-      - "docs-site/**"
-      - ".github/workflows/documentation.yml"
 
 permissions:
   contents: read

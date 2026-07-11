@@ -1,5 +1,6 @@
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './index.module.css';
 
 const links = [
@@ -30,6 +31,8 @@ const links = [
 ];
 
 export default function Home() {
+  const workflowImage = useBaseUrl('/img/excel-conversion-workflow.png');
+
   return (
     <Layout
       title="datamatrix2codes"
@@ -90,6 +93,16 @@ export default function Home() {
                 </tbody>
               </table>
             </div>
+          </div>
+        </section>
+
+        <section className={styles.workflow}>
+          <div className={styles.workflowInner}>
+            <img
+              src={workflowImage}
+              alt="Synthetic Excel workbook showing raw scanner strings converted into PC, SN, LOTE, CAD, STATUS, CONFIDENCE, and EXPLAIN columns"
+            />
+            <p>Raw scanner strings in Excel become parsed pharmacy columns with review colors.</p>
           </div>
         </section>
 
