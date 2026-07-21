@@ -7,6 +7,7 @@ const config: Config = {
   tagline: 'GS1 DataMatrix parsing for pharmacy scanner-to-Excel workflows',
   url: 'https://mrueda.github.io',
   baseUrl: '/datamatrix2codes/',
+  favicon: 'img/logo.svg',
   organizationName: 'mrueda',
   projectName: 'datamatrix2codes',
   onBrokenLinks: 'warn',
@@ -47,7 +48,7 @@ const config: Config = {
     ],
   ],
   themeConfig: {
-    image: 'img/review-colors.png',
+    image: 'img/social-preview.png',
     colorMode: {
       respectPrefersColorScheme: true,
     },
@@ -55,7 +56,7 @@ const config: Config = {
       title: 'datamatrix2codes',
       logo: {
         alt: 'datamatrix2codes logo',
-        src: 'img/logo.png',
+        src: 'img/logo.svg',
       },
       items: [
         {

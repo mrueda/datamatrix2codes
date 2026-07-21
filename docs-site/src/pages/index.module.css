@@ -21,12 +21,24 @@
   align-items: center;
 }
 
+.copy,
+.sheetPreview {
+  min-width: 0;
+}
+
 .copy h1 {
   margin: 0;
   color: #111827;
   font-size: 2.75rem;
   line-height: 1.12;
   letter-spacing: 0;
+}
+
+.heroLogo {
+  display: block;
+  width: 104px;
+  height: 104px;
+  margin: 0 0 1.2rem;
 }
 
 .kicker {
@@ -72,13 +84,17 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.86rem;
+  table-layout: fixed;
 }
 
 .sheetPreview th,
 .sheetPreview td {
   padding: 0.72rem;
   border: 1px solid #d1d5db;
+  overflow: hidden;
   text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sheetPreview th {
@@ -170,9 +186,35 @@
 @media (max-width: 900px) {
   .heroInner {
     grid-template-columns: 1fr;
+    gap: 2rem;
   }
 
   .copy h1 {
     font-size: 2.35rem;
+    overflow-wrap: anywhere;
+  }
+
+  .heroLogo {
+    width: 88px;
+    height: 88px;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero {
+    padding: 4rem 1.5rem 2.5rem;
+  }
+
+  .copy,
+  .sheetPreview {
+    max-width: 342px;
+  }
+
+  .copy h1 {
+    font-size: 2rem;
+  }
+
+  .lede {
+    font-size: 1rem;
   }
 }

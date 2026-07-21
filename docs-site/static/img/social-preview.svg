@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">datamatrix2codes social preview</title>
+  <desc id="desc">Brand preview for datamatrix2codes, showing a GS1 DataMatrix symbol being extracted into pharmacy fields for Excel.</desc>
+  <rect width="1200" height="630" fill="#f8fafc"/>
+  <path d="M0 0H1200V630H0Z" fill="#f8fafc"/>
+  <circle cx="210" cy="506" r="220" fill="#e6fffb" opacity=".7"/>
+  <circle cx="1050" cy="96" r="180" fill="#fff7e6" opacity=".75"/>
+
+  <g transform="translate(96 105) scale(.41)">
+    <rect width="1024" height="1024" rx="192" fill="#ffffff"/>
+    <circle cx="512" cy="512" r="388" fill="#ffffff" stroke="#d39a18" stroke-width="18"/>
+    <g fill="none" stroke="#0e9baa" stroke-width="58" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M224 358V238H344"/>
+      <path d="M680 238H800V358"/>
+      <path d="M800 666V786H680"/>
+      <path d="M344 786H224V666"/>
+    </g>
+    <g fill="#17202a">
+      <rect x="312" y="326" width="54" height="372"/>
+      <rect x="312" y="644" width="372" height="54"/>
+      <rect x="402" y="326" width="54" height="54"/>
+      <rect x="510" y="326" width="108" height="54"/>
+      <rect x="618" y="380" width="66" height="108"/>
+      <rect x="402" y="434" width="108" height="54"/>
+      <rect x="564" y="488" width="54" height="108"/>
+      <rect x="402" y="542" width="54" height="102"/>
+      <rect x="510" y="542" width="54" height="54"/>
+      <rect x="618" y="596" width="66" height="48"/>
+    </g>
+    <path d="M704 512H802" fill="none" stroke="#d39a18" stroke-width="56" stroke-linecap="round"/>
+    <path d="M770 448L834 512L770 576" fill="none" stroke="#d39a18" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="788" y="372" width="142" height="280" rx="34" fill="#17202a"/>
+    <text x="859" y="550" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="104" font-weight="800" text-anchor="middle">01</text>
+  </g>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="570" y="190" fill="#0e9baa" font-size="30" font-weight="800" letter-spacing="0">GS1 DataMatrix to Excel</text>
+    <text x="570" y="280" fill="#17202a" font-size="70" font-weight="800" letter-spacing="0">datamatrix2codes</text>
+    <text x="570" y="346" fill="#374151" font-size="32" font-weight="500" letter-spacing="0">Parse medicine-box scanner strings</text>
+    <text x="570" y="394" fill="#374151" font-size="32" font-weight="500" letter-spacing="0">into PC, CAD, SN, and LOTE.</text>
+
+    <g transform="translate(570 462)">
+      <rect width="88" height="48" rx="8" fill="#17202a"/>
+      <text x="44" y="33" fill="#ffffff" font-size="24" font-weight="800" text-anchor="middle">01</text>
+      <rect x="106" width="88" height="48" rx="8" fill="#0e9baa"/>
+      <text x="150" y="33" fill="#ffffff" font-size="24" font-weight="800" text-anchor="middle">17</text>
+      <rect x="212" width="88" height="48" rx="8" fill="#d39a18"/>
+      <text x="256" y="33" fill="#ffffff" font-size="24" font-weight="800" text-anchor="middle">10</text>
+      <rect x="318" width="88" height="48" rx="8" fill="#17202a"/>
+      <text x="362" y="33" fill="#ffffff" font-size="24" font-weight="800" text-anchor="middle">21</text>
+    </g>
+  </g>
+</svg>

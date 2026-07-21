@@ -32,6 +32,7 @@ const links = [
 
 export default function Home() {
   const workflowImage = useBaseUrl('/img/excel-conversion-workflow.png');
+  const logoImage = useBaseUrl('/img/logo.svg');
 
   return (
     <Layout
@@ -41,6 +42,7 @@ export default function Home() {
         <section className={styles.hero}>
           <div className={styles.heroInner}>
             <div className={styles.copy}>
+              <img className={styles.heroLogo} src={logoImage} alt="datamatrix2codes logo" />
               <p className={styles.kicker}>For pharmacy scanner workflows in Excel</p>
               <h1>Turn Spanish medicine box scans into PC, CAD, SN, and LOTE columns.</h1>
               <p className={styles.lede}>

@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://mrueda.github.io/datamatrix2codes/">
-    <img src="docs-site/static/img/logo.png"
+    <img src="docs-site/static/img/logo.svg"
          width="240" alt="datamatrix2codes logo">
   </a>
   <p><em>Excel-first GS1 DataMatrix parsing for Spanish pharmacy scanner workflows</em></p>
